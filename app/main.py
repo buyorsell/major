@@ -38,7 +38,6 @@ async def serve_graphic(key):
 async def serve_top(datetime, quote):
 	try:
 		key = "top/" + datetime + "/" + quote
-		print(redis_host + key)
 		async with aiohttp.ClientSession() as client:
 			async with client.get(redis_host + key) as resp:
 				response = await resp.json()
