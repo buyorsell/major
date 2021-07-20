@@ -66,3 +66,13 @@ async def serve_tickers():
 				return await resp.json()
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
+
+
+@app.get("/db/")
+async def serve_tickers():
+	try:
+		async with aiohttp.ClientSession() as client:
+			async with client.get(db_host) as resp:
+				return await resp.json()
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
