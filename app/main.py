@@ -59,7 +59,7 @@ async def serve_moex(sec, time):
 		raise fastapi.HTTPException(404)
 
 @app.get("/db/tickers")
-async def serve_tickers():
+async def serve_db():
 	try:
 		async with aiohttp.ClientSession() as client:
 			async with client.get(db_host + "tickers") as resp:
@@ -69,10 +69,27 @@ async def serve_tickers():
 
 
 @app.get("/db/")
-async def serve_tickers():
+async def serve_db():
 	try:
 		async with aiohttp.ClientSession() as client:
 			async with client.get(db_host) as resp:
 				return await resp.json()
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
+
+
+@app.get("/db/news")
+async def serve_news(d: int = None, rubric: str = None):
+	try:
+		async with aiohttp.ClientSession() as client:
+			if id != None:
+				async with client.get(db_host + "news?id=" + str(id)) as resp:
+					return await resp.json()
+			elif rubric != None:
+				async with client.get(db_host + "news?rubric=" + rubric) as resp:
+					return await resp.json()
+			else:
+				async with client.get(db_host + "news") as resp:
+					return await resp.json()
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
