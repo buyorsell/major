@@ -5,6 +5,7 @@ from aiohttp import client_exceptions
 
 redis_host = os.environ.get('REDIS_HOST')
 moex_host = os.environ.get('MOEX_HOST')
+db_host = os.environ.get('DB_HOST')
 
 app = fastapi.FastAPI()
 
@@ -53,6 +54,15 @@ async def serve_moex(sec, time):
 		key = "parse_moex/" + sec + "/" + time
 		async with aiohttp.ClientSession() as client:
 			async with client.get(moex_host + key) as resp:
+				return await resp.json()
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
+
+@app.get("/db/tickers")
+async def serve_tickers():
+	try:
+		async with aiohttp.ClientSession() as client:
+			async with client.get(db_host + "ticker") as resp:
 				return await resp.json()
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
