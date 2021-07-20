@@ -79,7 +79,7 @@ async def serve_db():
 
 
 @app.get("/db/news")
-async def serve_news(d: int = None, rubric: str = None):
+async def serve_news(id: int = None, rubric: str = None):
 	try:
 		async with aiohttp.ClientSession() as client:
 			if id != None:
