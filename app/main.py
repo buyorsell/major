@@ -62,7 +62,7 @@ async def serve_moex(sec, time):
 async def serve_tickers():
 	try:
 		async with aiohttp.ClientSession() as client:
-			async with client.get(db_host + "ticker") as resp:
+			async with client.get(db_host + "tickers") as resp:
 				return await resp.json()
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
