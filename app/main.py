@@ -2,6 +2,7 @@ import fastapi
 import aiohttp
 import os
 from aiohttp import client_exceptions
+from datetime import datetime
 
 redis_host = os.environ.get('REDIS_HOST')
 moex_host = os.environ.get('MOEX_HOST')
@@ -58,12 +59,22 @@ async def serve_moex(sec, time):
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
 
-@app.get("/db/tickers")
+@app.get("/db/stock")
 async def serve_db():
 	try:
 		async with aiohttp.ClientSession() as client:
 			async with client.get(db_host + "tickers") as resp:
-				return await resp.json()
+				response = await resp.json()
+				current_date = datetime.now().date().isoformat()
+				new_resp = []
+				for ticker in response:
+					quote = ticker["sec_id"]
+					key = "top/" + current_date + "/" + quote
+					async with client.get(redis_host + key) as resp:
+						ticker_data = await resp.json()
+						ticker["bos"] = ticker_data["bos_negative"] + ticker_data["bos_positive"]
+					new_resp.append(ticker)
+				return new_resp
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
 
@@ -79,10 +90,30 @@ async def serve_db():
 
 
 @app.get("/db/news")
-async def serve_news(id: int = None, rubric: str = None):
+async def serve_news(id: int = None, rubric: str = None, page: int = None, secid: str = None, date: str = None):
 	try:
 		async with aiohttp.ClientSession() as client:
-			if id != None:
+			if secid != None and date != None:
+				key = "top/" + date + "/" + secid
+				async with client.get(redis_host + key) as resp:
+					response = await resp.json()
+					data = []
+					for item in response["news"]:
+						async with client.get(db_host + "news?id=" + str(item)) as resp:
+							news_data = await resp.json()
+							data.append(news_data)
+					glass = {
+						"bos": response["bos_negative"] + response["bos_positive"],
+						"bos_positive": response["bos_positive"],
+						"bos_negative": response["bos_negative"],
+						"num_positive": response["num_positive"],
+						"num_negative": response["num_negative"],
+					}
+					return {"news":data, "sent":glass}
+			elif page != None:
+				async with client.get(db_host + "news?page=" + str(page)) as resp:
+					return await resp.json()
+			elif id != None:
 				async with client.get(db_host + "news?id=" + str(id)) as resp:
 					return await resp.json()
 			elif rubric != None:
