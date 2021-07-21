@@ -51,13 +51,14 @@ async def serve_top(datetime, quote):
 
 @app.get("/parse_moex/{sec}/{time}")
 async def serve_moex(sec, time):
-	try:
-		key = "parse_moex/" + sec + "/" + time
-		async with aiohttp.ClientSession() as client:
-			async with client.get(moex_host + key) as resp:
-				return await resp.json()
-	except client_exceptions.ContentTypeError:
-		raise fastapi.HTTPException(404)
+	raise fastapi.HTTPException(404)
+	# try:
+	# 	key = "parse_moex/" + sec + "/" + time
+	# 	async with aiohttp.ClientSession() as client:
+	# 		async with client.get(moex_host + key) as resp:
+	# 			return await resp.json()
+	# except client_exceptions.ContentTypeError:
+	# 	raise fastapi.HTTPException(404)
 
 @app.get("/db/stock")
 async def serve_db():
