@@ -113,6 +113,9 @@ async def serve_news(id: int = None, rubric: str = None, page: int = None, secid
 			elif page != None:
 				async with client.get(db_host + "news?page=" + str(page)) as resp:
 					return await resp.json()
+			elif id != None and secid != None:
+				async with client.get(db_host + "news?id=" + str(id) + "&secid=" + secid) as resp:
+					return await resp.json()
 			elif id != None:
 				async with client.get(db_host + "news?id=" + str(id)) as resp:
 					return await resp.json()
