@@ -70,7 +70,7 @@ async def serve_db(date: str = None):
 				if date == None:
 					date = datetime.now()
 					unix_date = int(time.mktime(date.timetuple()))
-					current_date = unix_date // (60*60*24*7)
+					current_date = str(unix_date // (60*60*24*7))
 				else:
 					current_date = date
 				new_resp = []
