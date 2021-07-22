@@ -3,6 +3,7 @@ import aiohttp
 import os
 from aiohttp import client_exceptions
 from datetime import datetime
+import time
 
 redis_host = os.environ.get('REDIS_HOST')
 moex_host = os.environ.get('MOEX_HOST')
@@ -67,7 +68,9 @@ async def serve_db(date: str = None):
 			async with client.get(db_host + "tickers") as resp:
 				response = await resp.json()
 				if date == None:
-					current_date = datetime.now().date().isoformat()
+					date = datetime.now()
+					unix_date = int(time.mktime(date.timetuple()))
+					current_date = unix_date // (60*60*24*7)
 				else:
 					current_date = date
 				new_resp = []
