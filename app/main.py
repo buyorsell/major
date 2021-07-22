@@ -62,7 +62,7 @@ async def serve_moex(sec, time):
 	# 	raise fastapi.HTTPException(404)
 
 @app.get("/db/stock")
-async def serve_db(date: str = None):
+async def serve_stock(date: str = None):
 	try:
 		async with aiohttp.ClientSession() as client:
 			async with client.get(db_host + "tickers") as resp:
@@ -81,6 +81,30 @@ async def serve_db(date: str = None):
 						ticker_data = await resp.json()
 						ticker["bos"] = ticker_data["bos_negative"] + ticker_data["bos_positive"]
 					new_resp.append(ticker)
+				return new_resp
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
+
+
+@app.get("/db/stock/{secid}")
+async def serve_stock_by_secid(secid: str):
+	try:
+		async with aiohttp.ClientSession() as client:
+			async with client.get(db_host + "stock" + "/" + secid) as resp:
+				response = await resp.json()
+				new_resp = []
+				for item in response:
+					raw_date = datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S")
+					unix_date = int(time.mktime(raw_date.timetuple()))
+					date = str(unix_date // (60*60*24*7))
+					key = "top/" + date + "/" + secid
+					try:
+						async with client.get(redis_host + key) as resp:
+							ticker_data = await resp.json()
+							item["bos"] = ticker_data["bos_negative"] + ticker_data["bos_positive"]
+					except client_exceptions.ContentTypeError:
+						item["bos"] = 0
+					new_resp.append(item)
 				return new_resp
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
