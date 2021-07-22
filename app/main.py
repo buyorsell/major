@@ -61,12 +61,15 @@ async def serve_moex(sec, time):
 	# 	raise fastapi.HTTPException(404)
 
 @app.get("/db/stock")
-async def serve_db():
+async def serve_db(date: str = None):
 	try:
 		async with aiohttp.ClientSession() as client:
 			async with client.get(db_host + "tickers") as resp:
 				response = await resp.json()
-				current_date = datetime.now().date().isoformat()
+				if date == None:
+					current_date = datetime.now().date().isoformat()
+				else:
+					current_date = date
 				new_resp = []
 				for ticker in response:
 					quote = ticker["sec_id"]
