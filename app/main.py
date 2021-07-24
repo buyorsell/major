@@ -120,6 +120,26 @@ async def serve_db():
 		raise fastapi.HTTPException(404)
 
 
+@app.get("/db/topics")
+async def serve_topics():
+	try:
+		async with aiohttp.ClientSession() as client:
+			async with client.get(db_host + "topics") as resp:
+				return await resp.json()
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
+
+
+@app.get("/db/entities")
+async def serve_entities():
+	try:
+		async with aiohttp.ClientSession() as client:
+			async with client.get(db_host + "entities") as resp:
+				return await resp.json()
+	except client_exceptions.ContentTypeError:
+		raise fastapi.HTTPException(404)
+
+
 @app.get("/db/news")
 async def serve_news(id: int = None, rubric: str = None, page: int = None, secid: str = None, date: str = None):
 	try:
