@@ -178,3 +178,21 @@ async def serve_news(id: int = None, rubric: str = None, page: int = None, secid
 					return await resp.json()
 	except client_exceptions.ContentTypeError:
 		raise fastapi.HTTPException(404)
+
+
+@app.get("/joke", response_class=fastapi.responses.HTMLResponse)
+async def serve_joke():
+	return """
+	<html>
+        <head>
+            <title>Who said that?</title>
+        </head>
+        <body>
+            <p>- I am Gunnery Sergeant Hartman, your senior drill instructor. From now on you will speak only when spoken to, and the first and last words out of your filthy sewers will be "Sir". Do you maggots understand that? </p>
+			<p>- Sir, yes Sir.</p>
+			<p>-  Bullshit, I can't hear you. Sound off like you got a pair!</p>
+			<p>- SIR, YES SIR!</p>
+			<p>- If you ladies leave my island, if you survive recruit training, you will be a weapon. You will be a minister of death praying for war. But until that day, you are pukes. You are the lowest form of life on Earth. You are not even human fucking beings. You are nothing but unorganized grab-asstic pieces of amphibian shit! Because I am hard, you will not like me. But the more you hate me, the more you will learn. I am hard but I am fair. There is no racial bigotry here. I do not look down on niggers, kikes, wops or greasers. Here you are all equally worthless. And my orders are to weed out all non-hackers who do not pack the gear to serve in my beloved Corps. Do you maggots understand that?</p>
+        </body>
+    </html>
+	"""
